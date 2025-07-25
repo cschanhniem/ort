@@ -1,0 +1,48 @@
+[env]
+_.file = ".env.versions"
+
+[tools]
+java = "{{ env.JAVA_VERSION }}"
+
+# Gradle Wrapper
+coreutils = {
+    version = "latest",
+    postinstall = """
+        cd $(dirname $(which coreutils))
+
+        # Create links for all tools built into coreutils.
+        ./coreutils --list | xargs -i ln -s coreutils {}
+
+        # Create links to the "host" for tools not available to mise.
+        ln -s /usr/bin/bash bash
+        ln -s /usr/bin/bash sh
+        ln -s /usr/bin/xargs xargs
+        ln -s /usr/bin/sed sed
+        ln -s /usr/bin/grep grep
+    """
+}
+
+# Package Managers
+sbt = "{{ env.SBT_VERSION }}"
+
+# Version Control Systems
+"pipx:mercurial" = "latest"
+
+[tasks.ort-requirements]
+deny_env = true
+
+# Strip everything but mise install directories from the path environment.
+env.PATH_MINIMAL = """
+{% set_global minimal_paths = [] %}
+
+{% for path in env.PATH | split(pat=":") %}
+    {% if "/mise/installs/" in path %}
+        {% set_global minimal_paths = minimal_paths | concat(with=path) %}
+    {% endif %}
+{% endfor %}
+
+{{ minimal_paths | join(sep=":") }}
+"""
+
+env.PATH = "{{ env.PATH_MINIMAL | trim }}"
+run = "./gradlew -q :cli:run --args=requirements"
