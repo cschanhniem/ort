@@ -45,6 +45,6 @@ class CompositeLicenseFactProvider(
     override fun hasLicenseTextForId(licenseId: String, id: Identifier): Boolean =
         providers.any { it.hasLicenseTextForId(licenseId, id) }
 
-    override fun getLicenseTextForId(licenseId: String, id: Identifier): LicenseText? =
-        providers.firstNotNullOfOrNull { it.getLicenseTextForId(licenseId, id) }
+    override fun getLicenseTextForId(licenseId: String, id: Identifier): Set<LicenseText> =
+        providers.flatMapTo(mutableSetOf()) { it.getLicenseTextForId(licenseId, id) }
 }

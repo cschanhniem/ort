@@ -32,27 +32,13 @@ abstract class LicenseFactProvider : Plugin {
 
     /** Return `true´ if this provider has an id-specific license text for the given [licenseId] and [id]. */
     open fun hasLicenseTextForId(licenseId: String, id: Identifier): Boolean =
-        getLicenseTextForId(licenseId, id) != null
+        getLicenseTextForId(licenseId, id).isNotEmpty()
 
     /**
-     * Return an id-specific [LicenseText] for the given [licenseId] and [id], or `null` if no such text is
+     * Return all id-specific [LicenseText]s for the given [licenseId] and [id], or `null` if no such text is
      * available.
      */
-    open fun getLicenseTextForId(licenseId: String, id: Identifier): LicenseText? = null
-
-    /**
-     * Return an id-specific [LicenseText] for the given [licenseId] and [id] if available, or the non-id-specific
-     * license text for [licenseId], or `null` if no such text is available.
-     */
-    fun hasLicenseText(licenseId: String, id: Identifier): Boolean =
-        hasLicenseText(licenseId, id) || hasLicenseText(licenseId)
-
-    /**
-     * Return an id-specific [LicenseText] for the given [licenseId] and [id] if available, or the non-id-specific
-     * license text for [licenseId], or `null` if no such text is available.
-     */
-    fun getLicenseText(licenseId: String, id: Identifier): LicenseText? =
-        getLicenseTextForId(licenseId, id) ?: getLicenseText(licenseId)
+    open fun getLicenseTextForId(licenseId: String, id: Identifier): Set<LicenseText> = emptySet()
 
     /** Return a non-blank license text for the given [licenseId], or `null` if no valid text is available. */
     @Deprecated("Java-only API", level = DeprecationLevel.HIDDEN)
@@ -64,15 +50,7 @@ abstract class LicenseFactProvider : Plugin {
      * available.
      */
     @Deprecated("Java-only API", level = DeprecationLevel.HIDDEN)
-    @JvmName("getLicenseTextForId")
-    fun getNonBlankLicenseTextForId(licenseId: String, id: Identifier): String? =
-        getLicenseTextForId(licenseId, id)?.text
-
-    /**
-     * Return a non-blank id-specific [LicenseText] for the given [licenseId] and [id] if available, or the
-     * non-id-specific license text for [licenseId], or `null` if no such text is available.
-     */
-    @Deprecated("Java-only API", level = DeprecationLevel.HIDDEN)
-    @JvmName("getLicenseText")
-    fun getNonBlankLicenseText(licenseId: String, id: Identifier): String? = getLicenseText(licenseId, id)?.text
+    @JvmName("getLicenseTextStringForId")
+    fun getNonBlankLicenseTextForId(licenseId: String, id: Identifier): Set<String> =
+        getLicenseTextForId(licenseId, id).mapTo(mutableSetOf()) { it.text }
 }
